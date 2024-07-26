@@ -1,42 +1,46 @@
+package com.housejunction.sr0724;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-
-import java.util.Objects;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name="tool_pricing")
 public class ToolPricing {
     private @Id
-    @Column(name = "type", unique = true)
-    final String type;
+    @Column(name = "tool_type", unique = true)
+    @NotNull String toolType;
 
     @Column(name = "daily_charge")
-    private final float dailyCharge;
+    @NotNull
+    private float dailyCharge;
 
     @Column(name = "weekday_charge")
-    private final boolean weekdayCharge;
+    @NotNull private boolean weekdayCharge;
 
     @Column(name = "weekend_charge")
-    private final boolean weekendCharge;
+    @NotNull private boolean weekendCharge;
 
     @Column(name = "holiday_charge")
-    private final boolean holidayCharge;
+    @NotNull
+    private boolean holidayCharge;
 
     public ToolPricing() {}
 
     public ToolPricing(String type, float dailyCharge,
                        boolean weekdayCharge, boolean weekendCharge, boolean holidayCharge) {
-        this.type = type;
+        this.toolType = type;
         this.dailyCharge = dailyCharge;
         this.weekdayCharge = weekdayCharge;
         this.weekendCharge = weekendCharge;
         this.holidayCharge = holidayCharge;
     }
 
-    public String getType() {
-        return type;
+
+    public String getToolType() {
+        return toolType;
     }
 
     public float getDailyCharge() {
@@ -56,31 +60,10 @@ public class ToolPricing {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o)
-            return true;
-
-        if (!(o instanceof ToolPricing toolPricing))
-            return false;
-
-        return Objects.equals(this.type, toolPricing.type)
-                && Objects.equals(this.dailyCharge, toolPricing.dailyCharge)
-                && Objects.equals(this.weekdayCharge, toolPricing.weekdayCharge)
-                && Objects.equals(this.weekendCharge, toolPricing.weekendCharge)
-                && Objects.equals(this.holidayCharge, toolPricing.holidayCharge);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(this.type, this.dailyCharge,
-                this.weekdayCharge, this.weekendCharge, this.holidayCharge);
-    }
-
-    @Override
     public String toString() {
-        return String.format("ToolPricing: {type=\"%s\", dailyCharge=\"%.2f\"," +
+        return String.format("com.housejunction.sr0724.ToolPricing: {type=\"%s\", dailyCharge=\"%.2f\"," +
                         " weekdayCharge=\"%s\", weekendCharge=\"%s\", holidayCharge=\"%s\"}",
-                this.type, this.dailyCharge,
+                this.toolType, this.dailyCharge,
                 this.weekdayCharge, this.weekendCharge, this.holidayCharge);
     }
 }
