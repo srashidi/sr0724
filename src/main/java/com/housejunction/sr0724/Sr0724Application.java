@@ -6,7 +6,7 @@ import org.hibernate.Session;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-public class Main {
+public class Sr0724Application {
     public static void main(String[] args) {
         if (args.length != 4) {
             throw new RuntimeException("There should be 4 args: tool code, rental days, checkout date, and discount percent.");
