@@ -5,9 +5,12 @@ import org.hibernate.Session;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 
 public class Sr0724Application {
     public static void main(String[] args) {
+        loadDatabase();
+
         if (args.length != 4) {
             throw new RuntimeException("There should be 4 args: tool code, rental days, checkout date, and discount percent.");
         }
@@ -18,27 +21,26 @@ public class Sr0724Application {
         int discountPercent;
 
         try {
-            rentalDays = Integer.getInteger(args[1]);
+            rentalDays = Integer.parseInt(args[1]);
         } catch (Exception e) {
             throw new RuntimeException("Something is wrong with the rental days arg." +
                     " Make sure it is an integer value.");
         }
 
         try {
-            checkoutDate = LocalDate.parse(args[2], DateTimeFormatter.ofPattern("MM/dd/yy"));
+            checkoutDate = LocalDate.parse(args[2], DateTimeFormatter.ofPattern("M/d/yy"));
         } catch (Exception e) {
             throw new RuntimeException("Something is wrong with the checkout date arg." +
-                    " Make sure it is in the following format: \"mm/dd/yy\" (ex, \"3/15/20\"");
+                    " Make sure it is in the following format: \"mm/dd/yy\" (ex, \"3/15/20\")");
         }
 
         try {
-            discountPercent = Integer.getInteger(args[3]);
+            discountPercent = Integer.parseInt(args[3]);
         } catch (Exception e) {
             throw new RuntimeException("Something is wrong with the discount percent arg." +
                     " Make sure it is an integer value.");
         }
 
-        loadDatabase();
         checkout(toolCode, rentalDays, checkoutDate, discountPercent);
     }
 
