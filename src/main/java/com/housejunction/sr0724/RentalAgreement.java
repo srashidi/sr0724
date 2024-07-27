@@ -34,6 +34,15 @@ public class RentalAgreement {
     @Column(name = "daily_rental_charge")
     @NotNull private float dailyRentalCharge;
 
+    @Column(name = "weekday_charge")
+    @NotNull private boolean weekdayCharge;
+
+    @Column(name = "weekend_charge")
+    @NotNull private boolean weekendCharge;
+
+    @Column(name = "holiday_charge")
+    @NotNull private boolean holidayCharge;
+
     @Column(name = "discount_percent")
     @NotNull private int discountPercent;
 
@@ -47,9 +56,13 @@ public class RentalAgreement {
         this.checkoutDate = checkoutDate;
         this.discountPercent = discountPercent;
 
-        // Setting the daily rental charge will maintain the price originally agreed on,
+        // Setting the daily rental charge and whether charges apply on weekdays,
+        // weekends, and/or holidays will maintain the price originally agreed on,
         // even if the price changes in the tool_pricing table in the future
         this.dailyRentalCharge = pricing.getDailyCharge();
+        this.weekdayCharge = pricing.hasWeekdayCharge();
+        this.weekendCharge = pricing.hasWeekendCharge();
+        this.holidayCharge = pricing.hasHolidayCharge();
     }
 
     public Tool getTool() {
@@ -70,6 +83,18 @@ public class RentalAgreement {
 
     public float getDailyRentalCharge() {
         return dailyRentalCharge;
+    }
+
+    public boolean hasWeekdayCharge() {
+        return weekdayCharge;
+    }
+
+    public boolean hasWeekendCharge() {
+        return weekendCharge;
+    }
+
+    public boolean hasHolidayCharge() {
+        return holidayCharge;
     }
 
     // Calculate chargeDays by identifying non-charge days and subtracting those from rental days
