@@ -1,11 +1,10 @@
 package com.housejunction.sr0724;
 
-import org.hibernate.Transaction;
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 
 public class Sr0724Application {
     public static void main(String[] args) {

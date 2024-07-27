@@ -3,9 +3,6 @@ package com.housejunction.sr0724;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Entity
 @Table(name = "tool")
 public class Tool {
@@ -18,9 +15,6 @@ public class Tool {
 
     @Column(name = "brand")
     @NotNull private String brand;
-
-    @OneToMany(targetEntity = RentalAgreement.class)
-    private List<RentalAgreement> rentalAgreements = new ArrayList<>();
 
     public Tool() {}
 

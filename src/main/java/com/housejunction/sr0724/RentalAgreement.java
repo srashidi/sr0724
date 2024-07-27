@@ -163,7 +163,8 @@ public class RentalAgreement {
     }
 
     public float getPreDiscountCharge() {
-        return dailyRentalCharge * getChargeDays();
+        BigDecimal unroundedAmount = new BigDecimal(dailyRentalCharge * getChargeDays());
+        return unroundedAmount.setScale(2, RoundingMode.HALF_UP).floatValue();
     }
 
     public int getDiscountPercent() {

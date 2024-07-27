@@ -14,7 +14,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestSuite {
+public class Sr0724TestSuite {
     private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
 
     @BeforeAll

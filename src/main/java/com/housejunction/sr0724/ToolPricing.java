@@ -38,7 +38,6 @@ public class ToolPricing {
         this.holidayCharge = holidayCharge;
     }
 
-
     public String getToolType() {
         return toolType;
     }
