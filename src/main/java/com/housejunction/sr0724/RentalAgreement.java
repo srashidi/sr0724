@@ -50,8 +50,6 @@ public class RentalAgreement {
 
     public RentalAgreement(Tool tool, int rentalDays, LocalDate checkoutDate, int discountPercent) {
         this.tool = tool;
-        ToolPricing pricing = tool.getToolPricing();
-
         this.rentalDays = rentalDays;
         this.checkoutDate = checkoutDate;
         this.discountPercent = discountPercent;
@@ -59,6 +57,7 @@ public class RentalAgreement {
         // Setting the daily rental charge and whether charges apply on weekdays,
         // weekends, and/or holidays will maintain the price originally agreed on,
         // even if the price changes in the tool_pricing table in the future
+        ToolPricing pricing = tool.getToolPricing();
         this.dailyRentalCharge = pricing.getDailyCharge();
         this.weekdayCharge = pricing.hasWeekdayCharge();
         this.weekendCharge = pricing.hasWeekendCharge();
@@ -99,16 +98,12 @@ public class RentalAgreement {
 
     // Calculate chargeDays by identifying non-charge days and subtracting those from rental days
     public int getChargeDays() {
-        ToolPricing pricing = this.tool.getToolPricing();
-        boolean weekdayCharge = pricing.hasWeekdayCharge();
-        boolean weekendCharge = pricing.hasWeekendCharge();
-        boolean holidayCharge = pricing.hasHolidayCharge();
         LocalDate dueDate = getDueDate();
 
         int nonChargeDays = 0;
 
         // Check which weekdays or weekends fall within the period
-        if (!weekdayCharge || !weekendCharge) {
+        if (!this.weekdayCharge || !this.weekendCharge) {
             LocalDate date = this.checkoutDate;
             HashMap<String, Integer> dayOfWeekCounts = new HashMap<>();
 
@@ -128,17 +123,17 @@ public class RentalAgreement {
                 }
             }
 
-            if (!weekdayCharge) {
+            if (!this.weekdayCharge) {
                 nonChargeDays += dayOfWeekCounts.get(weekdays);
             }
 
-            if (!weekendCharge) {
+            if (!this.weekendCharge) {
                 nonChargeDays += dayOfWeekCounts.get(weekends);
             }
         }
 
         // Check which holidays (Independence Day or Labor Day) fall within the period
-        if (!holidayCharge) {
+        if (!this.holidayCharge) {
             int yearDiff = dueDate.getYear() - this.checkoutDate.getYear();
             for (int i = 0; i < yearDiff + 1; i++) {
                 int thisYear = this.checkoutDate.plusYears(i).getYear();
