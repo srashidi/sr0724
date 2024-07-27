@@ -172,7 +172,7 @@ public class RentalAgreement {
 
     public float getDiscountAmount() {
         BigDecimal unroundedAmount = new BigDecimal(getPreDiscountCharge() * discountPercent / 100);
-        return unroundedAmount.setScale(2, RoundingMode.UP).floatValue();
+        return unroundedAmount.setScale(2, RoundingMode.HALF_UP).floatValue();
     }
 
     public float getFinalCharge() {

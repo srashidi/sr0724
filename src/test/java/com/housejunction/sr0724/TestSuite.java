@@ -1,8 +1,5 @@
 package com.housejunction.sr0724;
 
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaDelete;
-import jakarta.persistence.criteria.CriteriaQuery;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.junit.jupiter.api.AfterEach;
@@ -13,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -33,7 +29,7 @@ public class TestSuite {
 
     // Test 1
     @Test
-    void shouldNotAcceptDiscountOutsideOfRange() {
+    void shouldThrowExceptionForDiscountOutsideOfRange() {
         String toolCode = "JAKR";
         String rentalDays = "5";
         String checkoutDate = "9/3/15";
@@ -68,9 +64,20 @@ public class TestSuite {
 
         Sr0724Application.main(args);
 
-        String expectedOutput = "Tool code: LADW\nTool type: Ladder\nTool brand: Werner\nRental days: 3\n" +
-                "Check out date: 07/02/20\nDue date: 07/05/20\nDaily rental charge: $1.99\nCharge days: 2\n" +
-                "Pre-discount charge: $3.98\nDiscount percent: 10%\nDiscount amount: $0.40\nFinal charge: $3.58\n";
+        String expectedOutput = """
+                Tool code: LADW
+                Tool type: Ladder
+                Tool brand: Werner
+                Rental days: 3
+                Check out date: 07/02/20
+                Due date: 07/05/20
+                Daily rental charge: $1.99
+                Charge days: 2
+                Pre-discount charge: $3.98
+                Discount percent: 10%
+                Discount amount: $0.40
+                Final charge: $3.58
+                """;
         assertTrue(outContent.toString().contains(expectedOutput));
 
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
@@ -88,6 +95,198 @@ public class TestSuite {
             assertEquals(1.99f, agreement.getDailyRentalCharge());
             assertTrue(agreement.hasWeekdayCharge());
             assertTrue(agreement.hasWeekendCharge());
+            assertFalse(agreement.hasHolidayCharge());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    // Test 3
+    @Test
+    void shouldChargeForChainsawHolidaysNotWeekends() {
+        String toolCode = "CHNS";
+        String rentalDays = "5";
+        String checkoutDate = "7/2/15";
+        String discountPercent = "25";
+        String[] args = new String[] {toolCode, rentalDays, checkoutDate, discountPercent};
+
+        Sr0724Application.main(args);
+
+        String expectedOutput = """
+                Tool code: CHNS
+                Tool type: Chainsaw
+                Tool brand: Stihl
+                Rental days: 5
+                Check out date: 07/02/15
+                Due date: 07/07/15
+                Daily rental charge: $1.49
+                Charge days: 3
+                Pre-discount charge: $4.47
+                Discount percent: 25%
+                Discount amount: $1.12
+                Final charge: $3.35
+                """;
+        assertTrue(outContent.toString().contains(expectedOutput));
+
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            // Assert there is only one rental agreement in rental_agreement and that it is the correct agreement
+            List<RentalAgreement> agreements = session
+                    .createQuery("from RentalAgreement", RentalAgreement.class)
+                    .getResultList();
+            assertEquals(1, agreements.size());
+
+            RentalAgreement agreement = agreements.getFirst();
+            assertEquals("CHNS", agreement.getTool().getCode());
+            assertEquals(5, agreement.getRentalDays());
+            assertEquals(LocalDate.of(2015, 7, 2), agreement.getCheckoutDate());
+            assertEquals(25, agreement.getDiscountPercent());
+            assertEquals(1.49f, agreement.getDailyRentalCharge());
+            assertTrue(agreement.hasWeekdayCharge());
+            assertFalse(agreement.hasWeekendCharge());
+            assertTrue(agreement.hasHolidayCharge());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    // Test 4
+    @Test
+    void shouldNotChargeForJackhammerHolidaysOrWeekends1() {
+        String toolCode = "JAKD";
+        String rentalDays = "6";
+        String checkoutDate = "9/3/15";
+        String discountPercent = "0";
+        String[] args = new String[] {toolCode, rentalDays, checkoutDate, discountPercent};
+
+        Sr0724Application.main(args);
+
+        String expectedOutput = """
+                Tool code: JAKD
+                Tool type: Jackhammer
+                Tool brand: DeWalt
+                Rental days: 6
+                Check out date: 09/03/15
+                Due date: 09/09/15
+                Daily rental charge: $2.99
+                Charge days: 3
+                Pre-discount charge: $8.97
+                Discount percent: 0%
+                Discount amount: $0.00
+                Final charge: $8.97
+                """;
+        assertTrue(outContent.toString().contains(expectedOutput));
+
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            // Assert there is only one rental agreement in rental_agreement and that it is the correct agreement
+            List<RentalAgreement> agreements = session
+                    .createQuery("from RentalAgreement", RentalAgreement.class)
+                    .getResultList();
+            assertEquals(1, agreements.size());
+
+            RentalAgreement agreement = agreements.getFirst();
+            assertEquals("JAKD", agreement.getTool().getCode());
+            assertEquals(6, agreement.getRentalDays());
+            assertEquals(LocalDate.of(2015, 9, 3), agreement.getCheckoutDate());
+            assertEquals(0, agreement.getDiscountPercent());
+            assertEquals(2.99f, agreement.getDailyRentalCharge());
+            assertTrue(agreement.hasWeekdayCharge());
+            assertFalse(agreement.hasWeekendCharge());
+            assertFalse(agreement.hasHolidayCharge());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    // Test 5
+    @Test
+    void shouldNotChargeForJackhammerHolidaysOrWeekends2() {
+        String toolCode = "JAKR";
+        String rentalDays = "9";
+        String checkoutDate = "7/2/15";
+        String discountPercent = "0";
+        String[] args = new String[] {toolCode, rentalDays, checkoutDate, discountPercent};
+
+        Sr0724Application.main(args);
+
+        String expectedOutput = """
+                Tool code: JAKR
+                Tool type: Jackhammer
+                Tool brand: Ridgid
+                Rental days: 9
+                Check out date: 07/02/15
+                Due date: 07/11/15
+                Daily rental charge: $2.99
+                Charge days: 5
+                Pre-discount charge: $14.95
+                Discount percent: 0%
+                Discount amount: $0.00
+                Final charge: $14.95
+                """;
+        assertTrue(outContent.toString().contains(expectedOutput));
+
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            // Assert there is only one rental agreement in rental_agreement and that it is the correct agreement
+            List<RentalAgreement> agreements = session
+                    .createQuery("from RentalAgreement", RentalAgreement.class)
+                    .getResultList();
+            assertEquals(1, agreements.size());
+
+            RentalAgreement agreement = agreements.getFirst();
+            assertEquals("JAKR", agreement.getTool().getCode());
+            assertEquals(9, agreement.getRentalDays());
+            assertEquals(LocalDate.of(2015, 7, 2), agreement.getCheckoutDate());
+            assertEquals(0, agreement.getDiscountPercent());
+            assertEquals(2.99f, agreement.getDailyRentalCharge());
+            assertTrue(agreement.hasWeekdayCharge());
+            assertFalse(agreement.hasWeekendCharge());
+            assertFalse(agreement.hasHolidayCharge());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    // Test 6
+    @Test
+    void shouldNotChargeForJackhammerHolidaysOrWeekends3() {
+        String toolCode = "JAKR";
+        String rentalDays = "4";
+        String checkoutDate = "7/2/20";
+        String discountPercent = "50";
+        String[] args = new String[] {toolCode, rentalDays, checkoutDate, discountPercent};
+
+        Sr0724Application.main(args);
+
+        String expectedOutput = """
+                Tool code: JAKR
+                Tool type: Jackhammer
+                Tool brand: Ridgid
+                Rental days: 4
+                Check out date: 07/02/20
+                Due date: 07/06/20
+                Daily rental charge: $2.99
+                Charge days: 1
+                Pre-discount charge: $2.99
+                Discount percent: 50%
+                Discount amount: $1.50
+                Final charge: $1.49
+                """;
+        assertTrue(outContent.toString().contains(expectedOutput));
+
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            // Assert there is only one rental agreement in rental_agreement and that it is the correct agreement
+            List<RentalAgreement> agreements = session
+                    .createQuery("from RentalAgreement", RentalAgreement.class)
+                    .getResultList();
+            assertEquals(1, agreements.size());
+
+            RentalAgreement agreement = agreements.getFirst();
+            assertEquals("JAKR", agreement.getTool().getCode());
+            assertEquals(4, agreement.getRentalDays());
+            assertEquals(LocalDate.of(2020, 7, 2), agreement.getCheckoutDate());
+            assertEquals(50, agreement.getDiscountPercent());
+            assertEquals(2.99f, agreement.getDailyRentalCharge());
+            assertTrue(agreement.hasWeekdayCharge());
+            assertFalse(agreement.hasWeekendCharge());
             assertFalse(agreement.hasHolidayCharge());
         } catch (Exception e) {
             System.out.println(e.getMessage());
