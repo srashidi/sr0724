@@ -9,8 +9,6 @@ import java.util.Arrays;
 
 public class Sr0724Application {
     public static void main(String[] args) {
-        loadDatabase();
-
         if (args.length != 4) {
             throw new RuntimeException("There should be 4 args: tool code, rental days, checkout date, and discount percent.");
         }
@@ -44,7 +42,7 @@ public class Sr0724Application {
         checkout(toolCode, rentalDays, checkoutDate, discountPercent);
     }
 
-    private static void loadDatabase() {
+    public static void loadDatabase() {
         ToolPricing pricing_ladder = new ToolPricing("Ladder", 1.99f,
                 true, true, false);
         ToolPricing pricing_chainsaw = new ToolPricing("Chainsaw", 1.49f,
@@ -60,26 +58,27 @@ public class Sr0724Application {
         Transaction transaction = null;
 
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            // start a transaction
+            // Start a transaction
             transaction = session.beginTransaction();
 
-            // add the tool pricings to the database
+            // Add the tool pricings to the database
             session.persist(pricing_ladder);
             session.persist(pricing_chainsaw);
             session.persist(pricing_jackhammer);
 
-            // add the tools to the database
+            // Add the tools to the database
             session.persist(tool1);
             session.persist(tool2);
             session.persist(tool3);
             session.persist(tool4);
 
-            // commit transaction
+            // Commit transaction
             transaction.commit();
         } catch (Exception e) {
             if (transaction != null) {
                 transaction.rollback();
             }
+
             System.out.println(e.getMessage());
         }
     }
@@ -93,9 +92,18 @@ public class Sr0724Application {
             throw new RuntimeException("Discount percent must be in the range 0 to 100, inclusive.");
         }
 
+        Transaction transaction = null;
+
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             Tool tool = session.get(Tool.class, toolCode);
             RentalAgreement agreement = new RentalAgreement(tool, rentalDays, checkoutDate, discountPercent);
+
+            // Add rental agreement to the database
+            transaction = session.beginTransaction();
+            session.persist(agreement);
+            transaction.commit();
+
+            // Print the agreement details to the console
             agreement.print();
         } catch (Exception e) {
             System.out.println(e.getMessage());

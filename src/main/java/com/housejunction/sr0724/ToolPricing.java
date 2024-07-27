@@ -61,7 +61,7 @@ public class ToolPricing {
 
     @Override
     public String toString() {
-        return String.format("com.housejunction.sr0724.ToolPricing: {type=\"%s\", dailyCharge=\"%.2f\"," +
+        return String.format("ToolPricing: {type=\"%s\", dailyCharge=\"%.2f\"," +
                         " weekdayCharge=\"%s\", weekendCharge=\"%s\", holidayCharge=\"%s\"}",
                 this.toolType, this.dailyCharge,
                 this.weekdayCharge, this.weekendCharge, this.holidayCharge);

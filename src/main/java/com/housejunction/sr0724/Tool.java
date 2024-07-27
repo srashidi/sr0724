@@ -48,7 +48,7 @@ public class Tool {
 
     @Override
     public String toString() {
-        return String.format("com.housejunction.sr0724.Tool: {code=\"%s\", type=\"%s\", brand=\"%s\"}",
+        return String.format("Tool: {code=\"%s\", type=\"%s\", brand=\"%s\"}",
                 this.code, this.getType(), this.brand);
     }
 }

@@ -181,18 +181,18 @@ public class RentalAgreement {
 
     public void print() {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("MM/dd/yy");
-        DecimalFormat currencyFormat = new DecimalFormat("#.##");
+        DecimalFormat currencyFormat = new DecimalFormat("#,##0.00");
 
-        System.out.printf("com.housejunction.sr0724.Tool code: %s%n", this.tool.getCode());
-        System.out.printf("com.housejunction.sr0724.Tool type: %s%n", this.tool.getType());
-        System.out.printf("com.housejunction.sr0724.Tool brand: %s%n", this.tool.getBrand());
+        System.out.printf("Tool code: %s%n", this.tool.getCode());
+        System.out.printf("Tool type: %s%n", this.tool.getType());
+        System.out.printf("Tool brand: %s%n", this.tool.getBrand());
         System.out.printf("Rental days: %d%n", this.rentalDays);
         System.out.printf("Check out date: %s%n", this.checkoutDate.format(dtf));
         System.out.printf("Due date: %s%n", getDueDate().format(dtf));
         System.out.printf("Daily rental charge: $%s%n", currencyFormat.format(this.dailyRentalCharge));
         System.out.printf("Charge days: %d%n", getChargeDays());
         System.out.printf("Pre-discount charge: $%s%n", currencyFormat.format(getPreDiscountCharge()));
-        System.out.printf("Discount percent: %d%%n", this.discountPercent);
+        System.out.printf("Discount percent: %d%%%n", this.discountPercent);
         System.out.printf("Discount amount: $%s%n", currencyFormat.format(getDiscountAmount()));
         System.out.printf("Final charge: $%s%n", currencyFormat.format(getFinalCharge()));
     }
