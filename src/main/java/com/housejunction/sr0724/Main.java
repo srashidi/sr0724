@@ -91,16 +91,11 @@ public class Main {
             throw new RuntimeException("Discount percent must be in the range 0 to 100, inclusive.");
         }
 
-        Transaction transaction = null;
-
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             Tool tool = session.get(Tool.class, toolCode);
             RentalAgreement agreement = new RentalAgreement(tool, rentalDays, checkoutDate, discountPercent);
             agreement.print();
         } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
             System.out.println(e.getMessage());
         }
     }
