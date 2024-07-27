@@ -3,6 +3,8 @@ package com.housejunction.sr0724;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -149,7 +151,8 @@ public class RentalAgreement {
     }
 
     public float getDiscountAmount() {
-        return getPreDiscountCharge() * discountPercent / 100;
+        BigDecimal unroundedAmount = new BigDecimal(getPreDiscountCharge() * discountPercent / 100);
+        return unroundedAmount.setScale(2, RoundingMode.UP).floatValue();
     }
 
     public float getFinalCharge() {
